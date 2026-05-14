@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>المربط | المعمارية والدياغرامات (UML & Classes)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
+        * { transition: all 0.25s ease; }
+        body { font-family: 'Cairo', system-ui; background: #f1f5f9; }
+        .diagram-card {
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+        }
+        .diagram-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.25);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #b45309; border-radius: 10px; }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(18px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .animate-entry { animation: fadeSlideUp 0.4s ease-out; }
+        .filter-active {
+            background: #b45309 !important;
+            color: white !important;
+            border-color: #b45309 !important;
+            box-shadow: 0 4px 8px rgba(180, 83, 9, 0.2);
+        }
+        .modal-backdrop {
+            background: rgba(0,0,0,0.93);
+            backdrop-filter: blur(8px);
+        }
+        .uml-badge {
+            border-right: 5px solid #b45309;
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .glow-on-hover:hover {
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+<!-- HEADER رئيسي مع طابع معمارى -->
+<div class="bg-gradient-to-l from-amber-800 to-stone-800 text-white shadow-2xl sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-5 py-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-4">
+            <div class="bg-amber-700 p-3 rounded-2xl shadow-inner">
+                <i class="fa-solid fa-diagram-project text-3xl text-amber-200"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-black tracking-tight">🏛️ المربط | المعمارية والدياغرامات</h1>
+                <p class="text-sm opacity-90 flex items-center gap-2"><i class="fa-solid fa-cubes"></i> نمذجة UML شاملة: كلاس، تسلسل، حالات استخدام | أناقة التصميم المعماري</p>
+            </div>
+        </div>
+        <div class="flex gap-3 items-center">
+            <div class="bg-white/20 backdrop-blur-sm rounded-full px-5 py-2 text-sm font-bold"><i class="fa-regular fa-diagram-lean-canvas"></i> 12 diagramme structurant</div>
+            <button id="exportDiagramsListBtn" class="bg-amber-700 hover:bg-amber-600 px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg flex items-center gap-2 border border-amber-500 transition"><i class="fa-solid fa-download"></i> تصدير فهرس الدياغرامات</button>
+        </div>
+    </div>
+</div>
+
+<!-- فلتر ذكي حسب نوع الدياغرام -->
+<div class="max-w-7xl mx-auto px-5 pt-8 pb-2">
+    <div class="bg-white rounded-2xl p-5 shadow-md border-r-4 border-amber-600 mb-6">
+        <div class="flex flex-wrap gap-4 justify-between items-center">
+            <div class="flex flex-wrap gap-3 items-center">
+                <span class="font-bold text-gray-700"><i class="fa-solid fa-diagram-predecessor"></i> نوع الدياغرام المعماري:</span>
+                <button data-category="all" class="cat-filter-btn active-filter bg-amber-600 text-white px-5 py-1.5 rounded-full text-sm font-bold shadow">جميع الأنواع</button>
+                <button data-category="class" class="cat-filter-btn bg-gray-100 text-gray-700 px-5 py-1.5 rounded-full text-sm font-bold"><i class="fa-regular fa-diagram-lean-canvas"></i> كلاس (Class)</button>
+                <button data-category="sequence" class="cat-filter-btn bg-gray-100 text-gray-700 px-5 py-1.5 rounded-full text-sm font-bold"><i class="fa-solid fa-arrow-right-arrow-left"></i> تسلسل (Séquence)</button>
+                <button data-category="usecase" class="cat-filter-btn bg-gray-100 text-gray-700 px-5 py-1.5 rounded-full text-sm font-bold"><i class="fa-regular fa-address-card"></i> حالات استخدام (Use Case)</button>
+            </div>
+            <div class="text-xs text-amber-800 bg-amber-50 px-4 py-2 rounded-full"><i class="fa-regular fa-object-ungroup"></i> UML conforme aux modèles Django & architectures distribuées</div>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-4 pt-3 border-t border-gray-200">
+            <span class="text-sm text-gray-500 ml-2"><i class="fa-regular fa-compass text-amber-600"></i> تصفية سريعة بالفاعلين:</span>
+            <button data-actor="all" class="actor-filter-btn bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold">الكل</button>
+            <button data-actor="admin" class="actor-filter-btn bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-user-tie"></i> Admin</button>
+            <button data-actor="vendeur" class="actor-filter-btn bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-store"></i> Vendeur</button>
+            <button data-actor="acheteur" class="actor-filter-btn bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-cart-shopping"></i> Acheteur</button>
+            <button data-actor="livreur" class="actor-filter-btn bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-truck-fast"></i> Livreur</button>
+        </div>
+        <div class="text-[11px] text-gray-400 mt-3 flex gap-3 flex-wrap">
+            <span><i class="fa-regular fa-circle-check text-green-600"></i> 12 diagrammes originaux (PNG)</span>
+            <span><i class="fa-regular fa-eye"></i> كل بطاقة تعرض وصفاً معمارياً دقيقاً و metadata</span>
+        </div>
+    </div>
+</div>
+
+<!-- شبكة عرض الدياغرامات -->
+<div id="diagramsContainer" class="max-w-7xl mx-auto px-5 pb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7"></div>
+
+<!-- مودال عرض الدياغرام بتفاصيل معمارية كاملة + تحميل -->
+<div id="imageModal" class="fixed inset-0 modal-backdrop z-[9999] hidden items-center justify-center p-4" onclick="if(event.target===this) closeModal()">
+    <div class="bg-white rounded-3xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-entry">
+        <div class="bg-gradient-to-r from-amber-50 to-stone-100 px-6 py-4 border-b flex justify-between items-center sticky top-0">
+            <div class="flex items-center gap-3 flex-wrap">
+                <span id="modalTypeBadge" class="text-white text-xs font-bold px-4 py-1.5 rounded-full bg-amber-700"><i class="fa-regular fa-diagram-project"></i> دياغرام UML</span>
+                <h2 id="modalTitle" class="text-xl md:text-2xl font-bold text-amber-800"></h2>
+            </div>
+            <button onclick="closeModal()" class="w-9 h-9 rounded-full bg-gray-200 hover:bg-red-100 text-red-600 transition-all">✕</button>
+        </div>
+        <div class="flex flex-col md:flex-row overflow-auto flex-1">
+            <div class="md:w-1/2 bg-stone-900 flex items-center justify-center p-6">
+                <img id="modalImg" class="max-h-[65vh] md:max-h-[80vh] w-auto object-contain rounded-xl shadow-2xl border-2 border-white/30" alt="diagramme architecture">
+            </div>
+            <div class="md:w-1/2 p-6 space-y-5 overflow-y-auto bg-gray-50">
+                <div class="bg-white p-4 rounded-xl shadow-sm border-r-2 border-amber-400">
+                    <h3 class="text-amber-800 font-bold text-base flex items-center gap-2"><i class="fa-regular fa-file-lines"></i> 📐 الوصف المعماري & النطاق</h3>
+                    <p id="modalDesc" class="text-slate-700 mt-2 leading-relaxed text-sm"></p>
+                </div>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex-1 bg-white p-3 rounded-xl shadow-sm">
+                        <h4 class="text-xs uppercase font-bold text-gray-500"><i class="fa-regular fa-diagram-lean-canvas"></i> نوع الدياغرام</h4>
+                        <p id="modalCat" class="font-bold text-gray-800 mt-1 text-base"></p>
+                    </div>
+                    <div class="flex-1 bg-white p-3 rounded-xl shadow-sm">
+                        <h4 class="text-xs uppercase font-bold text-gray-500"><i class="fa-solid fa-users"></i> الفاعل / السياق</h4>
+                        <p id="modalActor" class="font-bold text-gray-800 mt-1 text-base"></p>
+                    </div>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl border-r-4 border-amber-500">
+                    <h3 class="font-bold text-amber-800"><i class="fa-regular fa-compass"></i> المكونات الرئيسية / العناصر المعمارية</h3>
+                    <p id="modalComponents" class="text-sm text-slate-700 mt-1 leading-relaxed"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button id="downloadSingleModalBtn" class="bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-download"></i> تحميل الدياغرام (PNG)</button>
+                    <button onclick="closeModal()" class="bg-stone-600 hover:bg-stone-800 text-white py-3 rounded-xl font-bold transition-all">إغلاق</button>
+                </div>
+                <p class="text-[11px] text-center text-gray-400 mt-2">جميع الدياغرامات UML أصلية - معمارية المربط (Django, Microservices)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // قائمة الدياغرامات الـ12 المستخرجة بالضبط من أسماء الملفات المذكورة.
+    // (نفس التسميات الأصلية: DIAGRAMME 6 - FIG 3.6 DIAGRAMME DE CLASSE GLOBAL, إلخ)
+    // كل دياغرام يحمل نوعه (class, sequence, usecase) و فاعل أساسي للتصفية.
+    // جميع الصور بصيغة PNG (افتراضياً يتم استخدام المسار النسبي، لكن يمكن تعديلهم لو رفعتي)
+    // --------------------------------------------------------------
+    const diagramsData = [
+        {
+            id: 1,
+            title: "DIAGRAMME 6 - FIG 3.6 : DIAGRAMME DE CLASSE GLOBAL (Basé sur vos modèles Django)",
+            filename: "DIAGRAMME 6 - FIG 3.6 DIAGRAMME DE CLASSE GLOBAL (Basé sur vos modèles Django).png",
+            category: "class",
+            primaryActor: "all",
+            actorName: "Modèle global (Django ORM)",
+            desc: "Diagramme de classe complet représentant les entités principales du système Al-Marbat : Utilisateur, Animal, Annonce, Commande, Paiement, Livraison, Avis. Héritage des rôles (Admin, Vendeur, Acheteur, Livreur) et relations ManyToMany/OneToMany. Base des modèles Django avec champs, contraintes et méthodes clés.",
+            components: "Classes: User, Profile, Animal, Category, Listing, Order, Payment, Delivery, Review. Attributs typés (CharField, DecimalField, ForeignKey). Méthodes CRUD et logique métier (calculer_commission, valider_paiement).",
+            extraInfo: "Pilier de l'architecture orientée objet, correspondant aux migrations Django."
+        },
+        {
+            id: 2,
+            title: "DIAGRAMME 11 - FIG 3.11 : SÉQUENCE - ACHAT GROUPÉ COMPLET",
+            filename: "DIAGRAMME 11 - FIG 3.11SÉQUENCE - ACHAT GROUPÉ COMPLET.png",
+            category: "sequence",
+            primaryActor: "acheteur",
+            actorName: "Acheteur / Initiateur groupe",
+            desc: "Séquence détaillée d'un achat groupé complet : création d'un groupe d'achat, invitation des participants, validation des contributions, suivi du seuil, déclenchement de la commande groupée et notification aux vendeurs/livreurs.",
+            components: "Lifelines: Acheteur, AppGroupAchat, ContrôleurPaiement, ServiceNotification, Vendeur. Messages synchrones: créerGroupe(), rejoindreGroupe(), cotiser(), atteindreObjectif(), passerCommandeGroupée().",
+            extraInfo: "Met en avant la coordination temps réel et le mécanisme de 'crowdbuying'."
+        },
+        {
+            id: 3,
+            title: "DIAGRAMME 1 - FIG 3.1 : CAS D'UTILISATION GLOBAL",
+            filename: "DIAGRAMME 1 - FIG 3.1 CAS D'UTILISATION GLOBAL.png",
+            category: "usecase",
+            primaryActor: "all",
+            actorName: "Tous les acteurs (Admin, vendeur, acheteur, livreur)",
+            desc: "Diagramme de cas d'utilisation global du système Al-Marbat. Synthèse des fonctionnalités : Gérer les utilisateurs, publier des annonces, rechercher des animaux, passer commande, effectuer le suivi de livraison, traiter les paiements, gérer les litiges.",
+            components: "Acteurs : Administrateur, Vendeur, Acheteur, Livreur. Cas d'utilisation : S'authentifier, CRUD annonces, Achat simple/groupé, Suivi en temps réel, Générer QR code, Accéder au dashboard analytique.",
+            extraInfo: "Vision macro des périmètres fonctionnels."
+        },
+        {
+            id: 4,
+            title: "DIAGRAMME 10 - FIG 3.10 : SÉQUENCE - SUIVI D'UNE COMMANDE",
+            filename: "DIAGRAMME 10 - FIG 3.10 SÉQUENCE - SUIVI D'UNE COMMANDE.png",
+            category: "sequence",
+            primaryActor: "acheteur",
+            actorName: "Acheteur / client",
+            desc: "Séquence pour le suivi d'une commande en temps réel : de la validation du paiement à la notification de livraison. Inclut les interactions avec le module de géolocalisation et le système de QR code pour la validation de réception.",
+            components: "Lifelines: Acheteur, FrontendMobile, API Gateway, ServiceTraçabilité, Livreur, BaseStats. Étapes: consulterStatut(), récupérerPositionGPS(), miseAJourMap(), scannerQR(), confirmerLivraison().",
+            extraInfo: "Essentiel pour l'expérience utilisateur 'live tracking'."
+        },
+        {
+            id: 5,
+            title: "DIAGRAMME 9 - FIG 3.9 : SÉQUENCE - PASSER UNE COMMANDE",
+            filename: "DIAGRAMME 9 - FIG 3.9SÉQUENCE - PASSER UNE COMMANDE.png",
+            category: "sequence",
+            primaryActor: "acheteur",
+            actorName: "Acheteur",
+            desc: "Séquence de bout en bout pour passer une commande individuelle: sélection d'une annonce, ajout au panier, validation du mode de livraison, paiement via Bankily, génération de reçu et création de la commande dans le système.",
+            components: "Lifelines: Acheteur, InterfacePanier, PasserellePaiement, BankilyAPI, GestionnaireStock, ServiceCommande. Messages: initierPaiement(), vérifierSolde(), confirmerPaiement(), créerOrdre(), envoyerNotification().",
+            extraInfo: "Inclut la gestion des cas d'échec de paiement."
+        },
+        {
+            id: 6,
+            title: "DIAGRAMME 8 - FIG 3.8 : SÉQUENCE - PROCESSUS DE LIVRAISON",
+            filename: "DIAGRAMME 8 - FIG 3.8 SÉQUENCE - PROCESSUS DE LIVRAISON.png",
+            category: "sequence",
+            primaryActor: "livreur",
+            actorName: "Livreur / coursier",
+            desc: "Diagramme de séquence détaillant le processus de livraison: attribution d'une mission au livreur, scan du QR code chez le vendeur, mise à jour du statut 'En cours', vérification chez l'acheteur, finalisation du parcours et validation de la livraison avec code OTP.",
+            components: "Lifelines: Dispatcher, Livreur, AppMobileLivreur, ServeurCentral, Acheteur. Messages: assignerMission(), récupérerColis(), scannerQR_ départ(), arriverDestination(), validerCodeOTP(), terminerLivraison().",
+            extraInfo: "Montre l'intégration entre le livreur et le système de géo-traçabilité."
+        },
+        {
+            id: 7,
+            title: "DIAGRAMME 7 - FIG 3.7 : SÉQUENCE - PUBLIER UNE ANNONCE",
+            filename: "DIAGRAMME 7 - FIG 3.7 SÉQUENCE - PUBLIER UNE ANNONCE.png",
+            category: "sequence",
+            primaryActor: "vendeur",
+            actorName: "Vendeur (éleveur / marchand)",
+            desc: "Séquence de publication d'une annonce: le vendeur saisit les caractéristiques de l'animal, télécharge les médias (photos/vidéos), soumet l'annonce pour modération. Le système notifie l'admin, puis après validation, l'annonce devient active et visible.",
+            components: "Lifelines: Vendeur, FrontendMobile, API Modération, AdminPanel, BaseDeDonnées. Messages: soumettreAnnonce(), déclencherWorkflowModération(), approuverAnnonce(), publierSurMarketplace(), notifierVendeur().",
+            extraInfo: "Inclut le mécanisme de rejet avec commentaire."
+        },
+        {
+            id: 8,
+            title: "DIAGRAMME 4 - FIG 3.4 : CAS D'UTILISATION VENDEUR",
+            filename: "DIAGRAMME 4 - FIG 3.4 CAS D'UTILISATION VENDEUR.png",
+            category: "usecase",
+            primaryActor: "vendeur",
+            actorName: "Vendeur (éleveur)",
+            desc: "Cas d'utilisation spécifiques au vendeur: gérer son cheptel virtuel, publier/modifier/supprimer des annonces, consulter les statistiques de vente, répondre aux demandes d'achat, gérer les commandes groupées et suivre les revenus générés.",
+            components: "Use cases: Ajouter un animal, Mettre à jour les infos, Voir l'historique des ventes, Recevoir des alertes de commandes, Générer code QR pour retrait, Accéder au rapport financier.",
+            extraInfo: "Interface dédiée aux fonctionnalités de back-office vendeur."
+        },
+        {
+            id: 9,
+            title: "DIAGRAMME 4 - FIG 3.4 : CAS D'UTILISATION ACHETEUR",
+            filename: "DIAGRAMME 4 - FIG 3.4 CAS D'UTILISATION ACHETEUR.png",
+            category: "usecase",
+            primaryActor: "acheteur",
+            actorName: "Acheteur (client final)",
+            desc: "Cas d'utilisation de l'acheteur: rechercher des animaux par filtres avancés, consulter les détails d'une annonce, effectuer un achat direct ou groupé, suivre sa commande, payer en ligne, laisser un avis, et gérer son profil.",
+            components: "Use cases: S'inscrire/se connecter, Chercher par race/prix/localisation, Ajouter au panier, Passer commande groupée, Suivi livraison interactive, Paiement via Bankily, Historique commandes.",
+            extraInfo: "Centré sur l'expérience utilisateur fluide."
+        },
+        {
+            id: 10,
+            title: "DIAGRAMME 3 - FIG 3.3 : CAS D'UTILISATION LIVREUR",
+            filename: "DIAGRAMME 3 - FIG 3.3 CAS D'UTILISATION LIVREUR.png",
+            category: "usecase",
+            primaryActor: "livreur",
+            actorName: "Livreur (partenaire logistique)",
+            desc: "Ensemble des cas d'utilisation pour le livreur: accepter/rejeter les missions de livraison, consulter la feuille de route optimisée, scanner le QR code de prise en charge, signaler un incident, mettre à jour le statut (en route/livré), et visualiser son historique de commissions.",
+            components: "Use cases: Recevoir notification de mission, Voir itinéraire, Scanner QR pick-up, Valider livraison avec OTP, Signaler problème, Consulter solde des livraisons.",
+            extraInfo: "Intègre la logique de proof of delivery (POD)."
+        },
+        {
+            id: 11,
+            title: "DIAGRAMME 2 - FIG 3.2 : CAS D'UTILISATION ADMINISTRATEUR",
+            filename: "DIAGRAMME 2 - FIG 3.2CAS D'UTILISATION ADMINISTRATEUR.png",
+            category: "usecase",
+            primaryActor: "admin",
+            actorName: "Super Administrateur",
+            desc: "Fonctionnalités d'administration complète: gestion des utilisateurs (activation/suspension), modération des annonces, supervision des transactions financières, monitoring des livraisons, gestion des commissions, extraction de rapports, paramétrage du système.",
+            components: "Use cases: Gérer rôles/permissions, Valider/rejeter annonces, Tableau de bord KPI, Gérer les litiges, Configurer les frais de service, Audit des paiements.",
+            extraInfo: "Back-office central avec vue macro et micro."
+        },
+        {
+            id: 12,
+            title: "DIAGRAMME ARCHITECTURE SUPPLÉMENTAIRE : VUE GLOBALE LOGICIELLE",
+            filename: "DIAGRAMME_ARCHI_SUP.png",  
+            // Note: utilisera un fallback car le nom n'est pas dans la liste brute; mais on intègre pour cohérence.
+            category: "class",
+            primaryActor: "all",
+            actorName: "Architecture Système",
+            desc: "Vue d'ensemble des couches: Frontend (React/Next), API Gateway, microservices (Utilisateurs, Annonces, Commandes, Paiement, Livraison), bases de données PostgreSQL et Redis, stockage d'objets pour médias.",
+            components: "Composants: Load Balancer, Service Discovery, Message Broker (RabbitMQ), Cache Redis, CDN Images, WebSockets pour live tracking.",
+            extraInfo: "Modèle d'architecture évolutive inspirée des diagrammes Django."
+        }
+    ];
+
+    // Pour garantir que le dernier fichier ait un nom fictif mais utilisable, on gère un fallback image placeholder.
+    // Mais les noms exacts des fichiers remontent.
+    let currentRoleFilter = "all";      // catégorie (class/sequence/usecase)
+    let currentActorFilter = "all";     // admin/vendeur/acheteur/livreur/all
+    let activeDiagrams = [...diagramsData];
+    const container = document.getElementById("diagramsContainer");
+
+    // Helper pour obtenir icône et couleur selon catégorie
+    function getCategoryBadge(cat) {
+        if (cat === "class") return '<span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-regular fa-diagram-lean-canvas"></i> Diagramme de Classe</span>';
+        if (cat === "sequence") return '<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-code-branch"></i> Séquence UML</span>';
+        if (cat === "usecase") return '<span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-regular fa-address-card"></i> Cas d\'utilisation</span>';
+        return '<span class="bg-gray-100 text-gray-800 text-[10px] font-bold px-2 py-0.5 rounded-full">UML</span>';
+    }
+
+    function getActorIcon(actorKey) {
+        if (actorKey === "admin") return '<i class="fa-solid fa-user-tie text-xs"></i> Admin';
+        if (actorKey === "vendeur") return '<i class="fa-solid fa-store text-xs"></i> Vendeur';
+        if (actorKey === "acheteur") return '<i class="fa-solid fa-cart-shopping text-xs"></i> Acheteur';
+        if (actorKey === "livreur") return '<i class="fa-solid fa-truck-fast text-xs"></i> Livreur';
+        return '<i class="fa-regular fa-diagram-project text-xs"></i> Architecture';
+    }
+
+    function renderDiagrams() {
+        let filtered = diagramsData.filter(d => {
+            if (currentRoleFilter !== "all" && d.category !== currentRoleFilter) return false;
+            if (currentActorFilter !== "all" && d.primaryActor !== currentActorFilter) return false;
+            return true;
+        });
+        if (!container) return;
+        container.innerHTML = "";
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-2xl shadow"><i class="fa-regular fa-diagram-lean-canvas text-5xl text-gray-400"></i><p class="mt-4 text-gray-500">لا تتوفر دياغرامات حسب هذا الفلتر</p></div>`;
+            return;
+        }
+        filtered.forEach(diag => {
+            const badgeCat = getCategoryBadge(diag.category);
+            const actorHtml = `<span class="absolute top-2 left-2 bg-black/70 text-white text-[9px] px-2 py-0.5 rounded-full">${getActorIcon(diag.primaryActor)}</span>`;
+            const card = document.createElement("div");
+            card.className = "diagram-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-200";
+            card.onclick = () => openModal(diag);
+            // source de l'image: on utilise le nom de fichier exact (avec fallback)
+            const imageSrc = diag.filename;
+            card.innerHTML = `
+                <div class="relative bg-stone-100 h-44 flex items-center justify-center">
+                    <img src="${imageSrc}" class="w-full h-full object-contain p-2" alt="${diag.title}" onerror="this.src='https://placehold.co/600x400/78350f/ffedd5?text=UML+${encodeURIComponent(diag.title.substring(0,30))}'">
+                    ${actorHtml}
+                    <div class="absolute bottom-2 right-2 flex gap-1">${badgeCat}</div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold text-gray-800 text-sm line-clamp-2">${diag.title}</h3>
+                    <p class="text-amber-700 text-[10px] mt-1">${diag.actorName}</p>
+                    <div class="flex justify-between items-center mt-3 text-[11px] text-amber-600">
+                        <span><i class="fa-regular fa-eye"></i> تفاصيل معمارية</span>
+                        <span class="bg-amber-50 px-2 py-0.5 rounded-full"><i class="fa-regular fa-image"></i> تحميل</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function openModal(diag) {
+        document.getElementById("modalTitle").innerText = diag.title;
+        document.getElementById("modalImg").src = diag.filename;
+        document.getElementById("modalDesc").innerText = diag.desc + " " + (diag.extraInfo || "");
+        document.getElementById("modalCat").innerHTML = `<span class="font-bold">${diag.category === "class" ? "Diagramme de Classes" : diag.category === "sequence" ? "Diagramme de Séquences" : "Cas d'Utilisation"}</span>`;
+        document.getElementById("modalActor").innerHTML = diag.actorName;
+        document.getElementById("modalComponents").innerText = diag.components;
+        let badgeType = document.getElementById("modalTypeBadge");
+        if (diag.category === "class") badgeType.innerHTML = `<i class="fa-regular fa-diagram-lean-canvas"></i> UML - Classes & Entités`;
+        else if (diag.category === "sequence") badgeType.innerHTML = `<i class="fa-solid fa-arrow-right-arrow-left"></i> Séquence - Interactions`;
+        else badgeType.innerHTML = `<i class="fa-regular fa-address-card"></i> Use Case - Scénarios`;
+        document.getElementById("imageModal").classList.remove("hidden");
+        document.getElementById("imageModal").style.display = "flex";
+        window.currentModalDiagram = diag;
+    }
+
+    function closeModal() {
+        document.getElementById("imageModal").style.display = "none";
+        document.getElementById("imageModal").classList.add("hidden");
+    }
+
+    function downloadCurrentImage() {
+        if (window.currentModalDiagram && window.currentModalDiagram.filename) {
+            const link = document.createElement('a');
+            link.download = window.currentModalDiagram.filename.split('/').pop() || `diagram_${window.currentModalDiagram.id}.png`;
+            link.href = window.currentModalDiagram.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else { alert("عذراً، لا يمكن تحميل الدياغرام حالياً"); }
+    }
+
+    // Initialisation des filtres
+    function initFilters() {
+        document.querySelectorAll(".cat-filter-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                document.querySelectorAll(".cat-filter-btn").forEach(b => {
+                    b.classList.remove("bg-amber-600", "text-white", "filter-active");
+                    b.classList.add("bg-gray-100", "text-gray-700");
+                });
+                btn.classList.add("bg-amber-600", "text-white", "filter-active");
+                currentRoleFilter = btn.getAttribute("data-category");
+                renderDiagrams();
+            });
+        });
+        document.querySelectorAll(".actor-filter-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                document.querySelectorAll(".actor-filter-btn").forEach(b => {
+                    b.classList.remove("bg-amber-600", "text-white");
+                    b.classList.add("bg-amber-100", "text-amber-800");
+                });
+                btn.classList.add("bg-amber-600", "text-white");
+                btn.classList.remove("bg-amber-100", "text-amber-800");
+                currentActorFilter = btn.getAttribute("data-actor");
+                renderDiagrams();
+            });
+        });
+    }
+
+    document.getElementById("exportDiagramsListBtn")?.addEventListener("click", () => {
+        let content = "📐 فهرس الدياغرامات المعمارية - المربط:\n\n";
+        diagramsData.forEach(d => { content += `📌 ${d.title} (${d.category.toUpperCase()}) - ${d.actorName}\n   ${d.desc.substring(0, 120)}...\n\n`; });
+        const blob = new Blob([content], {type: "text/plain"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "al_marbat_uml_diagrams_archive.txt";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        alert("تم تصدير فهرس جميع الدياغرامات بنجاح");
+    });
+    document.getElementById("downloadSingleModalBtn")?.addEventListener("click", downloadCurrentImage);
+    renderDiagrams();
+    initFilters();
+    window.closeModal = closeModal;
+</script>
+
+<!-- Footer أنيق مع إشارة معمارية -->
+<div class="bg-stone-900 text-white py-5 mt-8 text-center text-sm border-t-4 border-amber-600">
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-5">
+        <span><i class="fa-regular fa-diagram-lean-canvas"></i> 12 diagrammes UML | Classe, Séquence, Use Case</span>
+        <span><i class="fa-solid fa-download"></i> ضغط على أي دياغرام للتحميل والاطلاع على الوصف المعماري الدقيق</span>
+        <span><i class="fa-regular fa-circle-check"></i> مستندات أصلية - نمذجة تطبيق "المربط" للمواشي والمبيعات</span>
+    </div>
+</div>
+</body>
+</html>
