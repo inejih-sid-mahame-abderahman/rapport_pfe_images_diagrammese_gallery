@@ -274,18 +274,7 @@
             components: "Use cases: Gérer rôles/permissions, Valider/rejeter annonces, Tableau de bord KPI, Gérer les litiges, Configurer les frais de service, Audit des paiements.",
             extraInfo: "Back-office central avec vue macro et micro."
         },
-        {
-            id: 12,
-            title: "DIAGRAMME ARCHITECTURE SUPPLÉMENTAIRE : VUE GLOBALE LOGICIELLE",
-            filename: "DIAGRAMME_ARCHI_SUP.png",  
-            // Note: utilisera un fallback car le nom n'est pas dans la liste brute; mais on intègre pour cohérence.
-            category: "class",
-            primaryActor: "all",
-            actorName: "Architecture Système",
-            desc: "Vue d'ensemble des couches: Frontend (React/Next), API Gateway, microservices (Utilisateurs, Annonces, Commandes, Paiement, Livraison), bases de données PostgreSQL et Redis, stockage d'objets pour médias.",
-            components: "Composants: Load Balancer, Service Discovery, Message Broker (RabbitMQ), Cache Redis, CDN Images, WebSockets pour live tracking.",
-            extraInfo: "Modèle d'architecture évolutive inspirée des diagrammes Django."
-        }
+    
     ];
 
     // Pour garantir que le dernier fichier ait un nom fictif mais utilisable, on gère un fallback image placeholder.
